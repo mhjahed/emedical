@@ -1,0 +1,241 @@
+<!-- templates/news/edit_article.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Article - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Article</h3>
+                <small class="opacity-75">{{ article.title|truncatewords:8 }}</small>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'news:my_articles' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to My Articles
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-file-alt me-2 text-primary"></i>Article Content</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Article Title *</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                <div class="text-danger small">{{ form.title.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Subtitle</label>
+                                {{ form.subtitle }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Excerpt *</label>
+                                {{ form.excerpt }}
+                                {% if form.excerpt.errors %}
+                                <div class="text-danger small">{{ form.excerpt.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Content *</label>
+                                {{ form.content }}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Primary Image</label>
+                                    {% if article.primary_image %}
+                                    <div class="mb-2">
+                                        <img src="{{ article.primary_image.url }}" alt="" class="img-thumbnail" style="max-height: 100px;">
+                                    </div>
+                                    {% endif %}
+                                    <input type="file" name="primary_image" class="form-control" accept="image/*">
+                                    <small class="text-muted">Leave empty to keep current image</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Image Caption</label>
+                                    {{ form.primary_image_caption }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Category</label>
+                                    {{ form.category }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Status</label>
+                                    {{ form.status }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tags</label>
+                                {{ form.tags_input }}
+                                <small class="text-muted">Separate tags with commas</small>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_featured" class="form-check-input" id="is_featured" {% if article.is_featured %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_featured">
+                                        <i class="fas fa-star text-warning me-1"></i>Feature this article
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>Update Article
+                                </button>
+                                {% if article.status == 'published' %}
+                                <a href="{% url 'news:article_detail' article.slug %}" class="btn btn-outline-info" target="_blank">
+                                    <i class="fas fa-eye me-1"></i>View Live
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'news:my_articles' %}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Article Info -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Article Info</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="text-muted small">Status</label>
+                            <p class="mb-0">
+                                <span class="badge 
+                                    {% if article.status == 'published' %}bg-success
+                                    {% elif article.status == 'draft' %}bg-secondary
+                                    {% elif article.status == 'pending' %}bg-warning text-dark
+                                    {% else %}bg-danger{% endif %}">
+                                    {{ article.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Created</label>
+                            <p class="mb-0">{{ article.created_at|date:"F d, Y H:i" }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Last Updated</label>
+                            <p class="mb-0">{{ article.updated_at|date:"F d, Y H:i" }}</p>
+                        </div>
+                        <div class="mb-0">
+                            <label class="text-muted small">Views</label>
+                            <p class="mb-0"><i class="fas fa-eye me-1"></i>{{ article.views }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gallery Images -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="fas fa-images me-2 text-primary"></i>Gallery</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if gallery_images %}
+                        <div class="row g-2 mb-3">
+                            {% for img in gallery_images %}
+                            <div class="col-4">
+                                <div class="position-relative">
+                                    <img src="{{ img.image.url }}" alt="" class="img-fluid rounded">
+                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="deleteGalleryImage({{ img.id }})" style="padding: 2px 6px; font-size: 10px;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small mb-3">No gallery images yet.</p>
+                        {% endif %}
+                        
+                        <form id="galleryForm" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="input-group input-group-sm">
+                                <input type="file" name="image" class="form-control" accept="image/*" id="galleryImageInput">
+                                <button type="button" class="btn btn-primary" onclick="uploadGalleryImage()">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function uploadGalleryImage() {
+    var formData = new FormData();
+    var fileInput = document.getElementById('galleryImageInput');
+    if (fileInput.files.length === 0) {
+        alert('Please select an image');
+        return;
+    }
+    formData.append('image', fileInput.files[0]);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    
+    fetch('{% url "news:add_gallery_image" article.slug %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Error uploading image');
+        }
+    });
+}
+
+function deleteGalleryImage(imageId) {
+    if (confirm('Delete this image?')) {
+        fetch(`/news/delete-image/${imageId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

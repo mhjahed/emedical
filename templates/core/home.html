@@ -1,0 +1,361 @@
+<!-- templates/core/home.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MediCare Hospital - Your Health, Our Priority{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section position-relative" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 600px;">
+    <div class="container h-100">
+        <div class="row h-100 align-items-center">
+            <div class="col-lg-6 text-white">
+                <h1 class="display-4 fw-bold mb-4">Your Health Is Our Top Priority</h1>
+                <p class="lead mb-4">Experience world-class healthcare with our team of expert doctors and state-of-the-art facilities. We're here to care for you 24/7.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'appointments:book_appointment' %}" class="btn btn-light btn-lg">
+                        <i class="fas fa-calendar-plus me-2"></i>Book Appointment
+                    </a>
+                    <a href="{% url 'core:contact' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-phone me-2"></i>Emergency: +1 234 567 890
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block text-center">
+                <img src="https://img.freepik.com/free-vector/doctors-concept-illustration_114360-1515.jpg" alt="Doctors" class="img-fluid" style="max-height: 500px;">
+            </div>
+        </div>
+    </div>
+    <!-- Wave Shape -->
+    <div class="position-absolute bottom-0 start-0 w-100">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+        </svg>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="feature-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="feature-icon bg-primary bg-opacity-10 rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-ambulance fa-2x text-primary"></i>
+                    </div>
+                    <h5>Emergency Care</h5>
+                    <p class="text-muted mb-0">24/7 emergency services with rapid response team</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="feature-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="feature-icon bg-success bg-opacity-10 rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-md fa-2x text-success"></i>
+                    </div>
+                    <h5>Expert Doctors</h5>
+                    <p class="text-muted mb-0">Board-certified specialists in all departments</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="feature-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="feature-icon bg-info bg-opacity-10 rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-video fa-2x text-info"></i>
+                    </div>
+                    <h5>Video Consultation</h5>
+                    <p class="text-muted mb-0">Connect with doctors from home via Google Meet</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="feature-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+                    <div class="feature-icon bg-warning bg-opacity-10 rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-flask fa-2x text-warning"></i>
+                    </div>
+                    <h5>Modern Lab</h5>
+                    <p class="text-muted mb-0">State-of-the-art diagnostic facilities</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="https://img.freepik.com/free-vector/hospital-building-concept-illustration_114360-8440.png" alt="Hospital" class="img-fluid rounded-4">
+            </div>
+            <div class="col-lg-6">
+                <h6 class="text-primary fw-bold">ABOUT US</h6>
+                <h2 class="fw-bold mb-4">Welcome to MediCare Hospital</h2>
+                <p class="text-muted mb-4">For over 25 years, MediCare Hospital has been at the forefront of medical excellence. Our commitment to providing compassionate, patient-centered care has made us one of the most trusted healthcare institutions in the region.</p>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle p-3 me-3">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>Quality Care</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle p-3 me-3">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>Expert Team</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle p-3 me-3">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>Modern Equipment</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle p-3 me-3">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>24/7 Support</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="{% url 'core:about' %}" class="btn btn-primary">
+                    Learn More <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3 col-6">
+                <h2 class="display-4 fw-bold">25+</h2>
+                <p class="mb-0">Years Experience</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <h2 class="display-4 fw-bold">50+</h2>
+                <p class="mb-0">Expert Doctors</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <h2 class="display-4 fw-bold">10K+</h2>
+                <p class="mb-0">Happy Patients</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <h2 class="display-4 fw-bold">15+</h2>
+                <p class="mb-0">Departments</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h6 class="text-primary fw-bold">OUR SERVICES</h6>
+            <h2 class="fw-bold">Medical Services We Provide</h2>
+            <div class="mx-auto" style="width: 80px; height: 4px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
+        </div>
+        
+        <div class="row g-4">
+            {% for service in featured_services %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-shadow">
+                    {% if service.image %}
+                    <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-stethoscope fa-4x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ service.name }}</h5>
+                        <p class="card-text text-muted">{{ service.short_description|truncatewords:20 }}</p>
+                        <a href="{% url 'services:service_detail' service.slug %}" class="btn btn-outline-primary btn-sm">
+                            Learn More <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-img-top bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-heartbeat fa-4x text-primary"></i>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Cardiology</h5>
+                        <p class="card-text text-muted">Comprehensive heart care with advanced diagnostic and treatment options.</p>
+                        <a href="{% url 'services:services_list' %}" class="btn btn-outline-primary btn-sm">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-img-top bg-success bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-brain fa-4x text-success"></i>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Neurology</h5>
+                        <p class="card-text text-muted">Expert care for neurological conditions with cutting-edge technology.</p>
+                        <a href="{% url 'services:services_list' %}" class="btn btn-outline-primary btn-sm">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-img-top bg-info bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-bone fa-4x text-info"></i>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Orthopedics</h5>
+                        <p class="card-text text-muted">Specialized bone and joint care for injuries and chronic conditions.</p>
+                        <a href="{% url 'services:services_list' %}" class="btn btn-outline-primary btn-sm">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'services:services_list' %}" class="btn btn-primary btn-lg">
+                View All Services <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Doctors Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h6 class="text-primary fw-bold">OUR DOCTORS</h6>
+            <h2 class="fw-bold">Meet Our Expert Doctors</h2>
+            <div class="mx-auto" style="width: 80px; height: 4px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
+        </div>
+        
+        <div class="row g-4">
+            {% for doctor in featured_doctors %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm text-center h-100">
+                    <div class="card-body p-4">
+                        {% if doctor.user.profile_picture %}
+                        <img src="{{ doctor.user.profile_picture.url }}" alt="{{ doctor.full_name }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
+                            <i class="fas fa-user-md fa-4x text-primary"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="mb-1">{{ doctor.full_name }}</h5>
+                        <p class="text-primary mb-2">{{ doctor.designation|default:"Specialist" }}</p>
+                        <p class="text-muted small mb-2">{{ doctor.department.name|default:"General" }}</p>
+                        <span class="badge bg-light text-dark"><i class="fas fa-id-badge me-1"></i>{{ doctor.medi_id }}</span>
+                        <div class="mt-3">
+                            <a href="{% url 'doctors:doctor_detail' doctor.slug %}" class="btn btn-outline-primary btn-sm">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">Our expert doctors will be listed here soon.</p>
+                <a href="{% url 'doctors:doctors_list' %}" class="btn btn-primary">View All Doctors</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if featured_doctors %}
+        <div class="text-center mt-5">
+            <a href="{% url 'doctors:doctors_list' %}" class="btn btn-primary btn-lg">
+                View All Doctors <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Appointment CTA Section -->
+<section class="py-5 bg-primary">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 text-white mb-4 mb-lg-0">
+                <h2 class="fw-bold mb-2">Need a Doctor for Check-up?</h2>
+                <p class="mb-0 opacity-75">Book an appointment with our specialists today. Online consultations available via Google Meet.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'appointments:book_appointment' %}" class="btn btn-light btn-lg me-2 mb-2">
+                    <i class="fas fa-calendar-plus me-2"></i>Book Appointment
+                </a>
+                <a href="tel:+1234567890" class="btn btn-outline-light btn-lg mb-2">
+                    <i class="fas fa-phone me-2"></i>Call Now
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest News Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h6 class="text-primary fw-bold">MEDI NEWS</h6>
+            <h2 class="fw-bold">Latest Health Articles</h2>
+            <div class="mx-auto" style="width: 80px; height: 4px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
+        </div>
+        
+        <div class="row g-4">
+            {% for article in latest_news %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if article.primary_image %}
+                    <img src="{{ article.primary_image.url }}" class="card-img-top" alt="{{ article.title }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-newspaper fa-4x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-primary">{{ article.category.name|default:"Health" }}</span>
+                            <small class="text-muted"><i class="fas fa-calendar me-1"></i>{{ article.published_at|date:"M d, Y" }}</small>
+                        </div>
+                        <h5 class="card-title">{{ article.title|truncatewords:10 }}</h5>
+                        <p class="card-text text-muted">{{ article.excerpt|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>{{ article.author_name }}
+                            </small>
+                            <a href="{% url 'news:article_detail' article.slug %}" class="btn btn-link p-0">
+                                Read More <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">Stay tuned for health articles and medical news.</p>
+                <a href="{% url 'news:article_list' %}" class="btn btn-primary">View All News</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if latest_news %}
+        <div class="text-center mt-5">
+            <a href="{% url 'news:article_list' %}" class="btn btn-primary btn-lg">
+                View All Articles <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

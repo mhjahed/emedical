@@ -1,0 +1,166 @@
+<!-- templates/appointments/book_appointment.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book Appointment - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <h1 class="fw-bold"><i class="fas fa-calendar-plus me-2"></i>Book Appointment</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-white-50">Home</a></li>
+                <li class="breadcrumb-item active text-white">Book Appointment</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-calendar-check me-2 text-primary"></i>Schedule Your Visit</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if not user.is_authenticated %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Please <a href="{% url 'accounts:login' %}?next={{ request.path }}">login</a> or <a href="{% url 'accounts:signup' %}">create an account</a> to book an appointment.
+                        </div>
+                        {% else %}
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <!-- Select Doctor -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold"><i class="fas fa-user-md me-1 text-primary"></i>Select Doctor *</label>
+                                    <select name="doctor" class="form-select" id="id_doctor" required>
+                                        <option value="">Choose a doctor...</option>
+                                        {% for doctor in doctors %}
+                                        <option value="{{ doctor.id }}" {% if form.doctor.value == doctor.id|stringformat:"s" %}selected{% endif %}>
+                                            Dr. {{ doctor.user.get_full_name }} - {{ doctor.department.name|default:"General" }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if form.doctor.errors %}
+                                    <div class="text-danger small">{{ form.doctor.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Appointment Type -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold"><i class="fas fa-stethoscope me-1 text-primary"></i>Appointment Type *</label>
+                                    {{ form.appointment_type }}
+                                    {% if form.appointment_type.errors %}
+                                    <div class="text-danger small">{{ form.appointment_type.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Date -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold"><i class="fas fa-calendar me-1 text-primary"></i>Preferred Date *</label>
+                                    {{ form.date }}
+                                    {% if form.date.errors %}
+                                    <div class="text-danger small">{{ form.date.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Time -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold"><i class="fas fa-clock me-1 text-primary"></i>Preferred Time *</label>
+                                    {{ form.time }}
+                                    {% if form.time.errors %}
+                                    <div class="text-danger small">{{ form.time.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Video Consultation -->
+                                <div class="col-12 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="is_video_consultation" id="is_video_consultation" {% if form.is_video_consultation.value %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_video_consultation">
+                                            <i class="fas fa-video me-1 text-info"></i>
+                                            <strong>Request Video Consultation</strong> (via Google Meet)
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Reason -->
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-bold"><i class="fas fa-comment-medical me-1 text-primary"></i>Reason for Visit *</label>
+                                    {{ form.reason }}
+                                    {% if form.reason.errors %}
+                                    <div class="text-danger small">{{ form.reason.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Symptoms -->
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-bold"><i class="fas fa-notes-medical me-1 text-primary"></i>Current Symptoms</label>
+                                    {{ form.symptoms }}
+                                    <small class="text-muted">Describe any symptoms you're experiencing</small>
+                                </div>
+                                
+                                <!-- Additional Notes -->
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-bold"><i class="fas fa-sticky-note me-1 text-primary"></i>Additional Notes</label>
+                                    {{ form.notes }}
+                                    <small class="text-muted">Any other information you'd like the doctor to know</small>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'core:home' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-calendar-check me-2"></i>Confirm Booking
+                                </button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Info Cards -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x text-primary mb-3"></i>
+                                <h6>Quick Response</h6>
+                                <p class="text-muted small mb-0">We confirm appointments within 24 hours</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-video fa-2x text-info mb-3"></i>
+                                <h6>Video Consultation</h6>
+                                <p class="text-muted small mb-0">Connect with doctors from home</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-shield-alt fa-2x text-success mb-3"></i>
+                                <h6>Secure & Private</h6>
+                                <p class="text-muted small mb-0">Your information is protected</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

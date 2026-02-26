@@ -1,0 +1,73 @@
+<!-- templates/admin_tools/create_staff_user.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Doctor/Staff - Admin{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-dark text-white">
+    <div class="container">
+        <h3 class="mb-0"><i class="fas fa-user-plus me-2"></i>Create Doctor/Staff Account</h3>
+        <small class="opacity-75">Add new medical staff member</small>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Role *</label>
+                                <select name="role" class="form-select" required>
+                                    <option value="">Select Role...</option>
+                                    <option value="doctor">Doctor</option>
+                                    <option value="staff">Staff</option>
+                                </select>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">First Name *</label>
+                                    <input type="text" name="first_name" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Last Name *</label>
+                                    <input type="text" name="last_name" class="form-control" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Email *</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">Password *</label>
+                                <input type="password" name="password" class="form-control" required>
+                                <small class="text-muted">User will use this password to login</small>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                A unique Medi ID will be automatically generated for this user.
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-1"></i>Create Account
+                                </button>
+                                <a href="{% url 'admin_tools:user_management' %}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

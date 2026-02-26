@@ -1,0 +1,142 @@
+<!-- templates/admin_tools/reports.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reports - Admin{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Reports</h3>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'admin_tools:export_data' %}?type={{ report_type }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-download me-1"></i>Export CSV
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-3 bg-light">
+    <div class="container">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <select name="type" class="form-select" onchange="this.form.submit()">
+                    <option value="appointments" {% if report_type == 'appointments' %}selected{% endif %}>Appointments</option>
+                    <option value="users" {% if report_type == 'users' %}selected{% endif %}>Users</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="date_from" class="form-control" placeholder="From Date" value="{{ request.GET.date_from }}">
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="date_to" class="form-control" placeholder="To Date" value="{{ request.GET.date_to }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <!-- Stats -->
+        {% if stats %}
+        <div class="row g-3 mb-4">
+            {% for key, value in stats.items %}
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="text-primary">{{ value }}</h3>
+                        <p class="text-muted mb-0">{{ key|title }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Data Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">{{ report_type|title }} Report</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        {% if report_type == 'appointments' %}
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in data %}
+                            <tr>
+                                <td><code>{{ item.appointment_id }}</code></td>
+                                <td>{{ item.patient.get_full_name }}</td>
+                                <td>Dr. {{ item.doctor.user.get_full_name }}</td>
+                                <td>{{ item.date|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if item.status == 'completed' %}bg-success
+                                        {% elif item.status == 'pending' %}bg-warning text-dark
+                                        {% elif item.status == 'cancelled' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ item.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">No data available</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% elif report_type == 'users' %}
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in data %}
+                            <tr>
+                                <td>{{ item.get_full_name }}</td>
+                                <td>{{ item.email }}</td>
+                                <td><span class="badge bg-secondary">{{ item.get_role_display }}</span></td>
+                                <td>{{ item.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if item.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">No data available</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

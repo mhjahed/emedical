@@ -1,0 +1,108 @@
+<!-- templates/services/services_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Our Services - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <h1 class="fw-bold">Our Services</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-white-50">Home</a></li>
+                <li class="breadcrumb-item active text-white">Services</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<!-- Filter -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <form method="get" class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <select name="category" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.slug }}" {% if category_filter == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Services -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for service in services %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if service.image %}
+                    <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas {{ service.icon|default:'fa-stethoscope' }} fa-4x text-primary"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ service.name }}</h5>
+                        <p class="card-text text-muted">{{ service.short_description|truncatewords:20 }}</p>
+                        {% if service.price %}
+                        <p class="text-primary fw-bold mb-3">
+                            {{ service.price_note|default:"Starting from" }} ${{ service.price }}
+                        </p>
+                        {% endif %}
+                        <a href="{% url 'services:service_detail' service.slug %}" class="btn btn-outline-primary">
+                            Learn More <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-stethoscope fa-4x text-muted mb-3"></i>
+                <h4>No Services Found</h4>
+                <p class="text-muted">Services will be added soon.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if services.has_other_pages %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if services.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ services.previous_page_number }}&category={{ category_filter }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in services.paginator.page_range %}
+                <li class="page-item {% if services.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}&category={{ category_filter }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if services.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ services.next_page_number }}&category={{ category_filter }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,82 @@
+<!-- templates/pdf_system/edit_template.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit PDF Template - Admin{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Template</h3>
+                <small class="opacity-75">{{ template.name }}</small>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'pdf_system:template_list' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label fw-bold">Template Name *</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold">Type *</label>
+                            {{ form.template_type }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        {{ form.description }}
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="mb-3"><i class="fas fa-file-alt me-1 text-primary"></i>Content</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Header Content</label>
+                        {{ form.header_content }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Body Content *</label>
+                        {{ form.body_content }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Footer Content</label>
+                        {{ form.footer_content }}
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Template
+                        </button>
+                        <a href="{% url 'pdf_system:preview_template' template.slug %}" class="btn btn-outline-info" target="_blank">
+                            <i class="fas fa-eye me-1"></i>Preview
+                        </a>
+                        <a href="{% url 'pdf_system:template_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

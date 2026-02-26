@@ -1,0 +1,208 @@
+<!-- templates/appointments/appointment_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Appointment {{ appointment.appointment_id }} - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="fw-bold"><i class="fas fa-calendar-check me-2"></i>Appointment Details</h1>
+                <p class="mb-0 opacity-75">{{ appointment.appointment_id }}</p>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-white text-dark fs-6 px-3 py-2">
+                    {% if appointment.status == 'pending' %}
+                    <i class="fas fa-clock text-warning me-1"></i>
+                    {% elif appointment.status == 'confirmed' %}
+                    <i class="fas fa-check-circle text-success me-1"></i>
+                    {% elif appointment.status == 'completed' %}
+                    <i class="fas fa-check-double text-info me-1"></i>
+                    {% elif appointment.status == 'cancelled' %}
+                    <i class="fas fa-times-circle text-danger me-1"></i>
+                    {% endif %}
+                    {{ appointment.get_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Appointment Info -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Appointment Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted small">Appointment ID</label>
+                                <p class="fw-bold mb-0">{{ appointment.appointment_id }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted small">Type</label>
+                                <p class="fw-bold mb-0">
+                                    {{ appointment.get_appointment_type_display }}
+                                    {% if appointment.is_video_consultation %}
+                                    <span class="badge bg-info ms-1"><i class="fas fa-video me-1"></i>Video</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted small">Date</label>
+                                <p class="fw-bold mb-0"><i class="fas fa-calendar me-1 text-primary"></i>{{ appointment.date|date:"F d, Y" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted small">Time</label>
+                                <p class="fw-bold mb-0"><i class="fas fa-clock me-1 text-primary"></i>{{ appointment.time|time:"h:i A" }}</p>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="text-muted small">Reason for Visit</label>
+                                <p class="mb-0">{{ appointment.reason }}</p>
+                            </div>
+                            {% if appointment.symptoms %}
+                            <div class="col-12 mb-3">
+                                <label class="text-muted small">Symptoms</label>
+                                <p class="mb-0">{{ appointment.symptoms }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Video Consultation -->
+                {% if appointment.is_video_consultation %}
+                <div class="card border-0 shadow-sm mb-4 border-start border-info border-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-video me-2 text-info"></i>Video Consultation</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if appointment.meet_link %}
+                        <p class="mb-3">Your doctor has created a Google Meet link for this consultation.</p>
+                        {% if appointment.can_join_meeting %}
+                        <a href="{{ appointment.meet_link }}" target="_blank" class="btn btn-info btn-lg">
+                            <i class="fas fa-video me-2"></i>Join Meeting Now
+                        </a>
+                        {% else %}
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            Meeting will be available 15 minutes before your appointment time.
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            The doctor will create a meeting link before your appointment. Please check back later.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Doctor Notes (if completed) -->
+                {% if appointment.status == 'completed' and appointment.doctor_notes %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-notes-medical me-2 text-success"></i>Doctor's Notes</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if appointment.diagnosis %}
+                        <div class="mb-3">
+                            <label class="text-muted small">Diagnosis</label>
+                            <p class="mb-0">{{ appointment.diagnosis }}</p>
+                        </div>
+                        {% endif %}
+                        {% if appointment.prescription %}
+                        <div class="mb-3">
+                            <label class="text-muted small">Prescription</label>
+                            <p class="mb-0">{{ appointment.prescription }}</p>
+                        </div>
+                        {% endif %}
+                        {% if appointment.doctor_notes %}
+                        <div class="mb-3">
+                            <label class="text-muted small">Notes</label>
+                            <p class="mb-0">{{ appointment.doctor_notes }}</p>
+                        </div>
+                        {% endif %}
+                        {% if appointment.follow_up_date %}
+                        <div class="alert alert-primary mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Follow-up scheduled for: <strong>{{ appointment.follow_up_date|date:"F d, Y" }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Documents -->
+                {% if documents %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-file-pdf me-2 text-danger"></i>Documents</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for doc in documents %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <i class="fas fa-file-pdf text-danger me-2"></i>
+                                <span>{{ doc.title }}</span>
+                                <small class="text-muted ms-2">{{ doc.get_document_type_display }}</small>
+                            </div>
+                            <a href="{{ doc.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Doctor Info -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-user-md me-2 text-primary"></i>Doctor</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if appointment.doctor.user.profile_picture %}
+                        <img src="{{ appointment.doctor.user.profile_picture.url }}" alt="" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="fas fa-user-md fa-2x text-primary"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="mb-1">Dr. {{ appointment.doctor.user.get_full_name }}</h5>
+                        <p class="text-muted mb-2">{{ appointment.doctor.designation|default:"Specialist" }}</p>
+                        <p class="text-primary mb-0">{{ appointment.doctor.department.name|default:"General Medicine" }}</p>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-cog me-2 text-primary"></i>Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'appointments:my_appointments' %}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Appointments
+                        </a>
+                        {% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
+                        <a href="{% url 'appointments:cancel_appointment' appointment.appointment_id %}" class="btn btn-outline-danger w-100" onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                            <i class="fas fa-times me-1"></i>Cancel Appointment
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

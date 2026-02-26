@@ -1,0 +1,176 @@
+<!-- templates/news/create_article.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Write New Article - MediCare Hospital{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ckeditor-container {
+        min-height: 400px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-pen me-2"></i>Write New Article</h3>
+                <small class="opacity-75">Share your medical knowledge</small>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'news:my_articles' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to My Articles
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Article Title *</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                <div class="text-danger small">{{ form.title.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Subtitle</label>
+                                {{ form.subtitle }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Excerpt *</label>
+                                {{ form.excerpt }}
+                                <small class="text-muted">A short summary that appears on listing pages</small>
+                                {% if form.excerpt.errors %}
+                                <div class="text-danger small">{{ form.excerpt.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Content *</label>
+                                {{ form.content }}
+                                {% if form.content.errors %}
+                                <div class="text-danger small">{{ form.content.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Primary Image *</label>
+                                    <input type="file" name="primary_image" class="form-control" accept="image/*" required>
+                                    {% if form.primary_image.errors %}
+                                    <div class="text-danger small">{{ form.primary_image.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Image Caption</label>
+                                    {{ form.primary_image_caption }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Category</label>
+                                    {{ form.category }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Status</label>
+                                    {{ form.status }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tags</label>
+                                {{ form.tags_input }}
+                                <small class="text-muted">Separate tags with commas (e.g., health, nutrition, exercise)</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_featured" class="form-check-input" id="is_featured">
+                                    <label class="form-check-label" for="is_featured">
+                                        <i class="fas fa-star text-warning me-1"></i>Feature this article
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <!-- SEO Section -->
+                            <div class="mb-4">
+                                <h6 class="text-muted mb-3"><i class="fas fa-search me-1"></i>SEO Settings (Optional)</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Meta Title</label>
+                                    {{ form.meta_title }}
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Meta Description</label>
+                                    {{ form.meta_description }}
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>Save Article
+                                </button>
+                                <a href="{% url 'news:my_articles' %}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Tips -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-lightbulb me-2 text-warning"></i>Writing Tips</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Use a catchy, descriptive title
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Include a high-quality primary image
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Write a compelling excerpt
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Break content into sections with headings
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Add relevant tags for better discovery
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Proofread before publishing
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

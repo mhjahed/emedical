@@ -1,0 +1,48 @@
+<!-- templates/pdf_system/select_template.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Select PDF Template - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <h3 class="mb-0"><i class="fas fa-file-pdf me-2"></i>Generate PDF Document</h3>
+        <p class="mb-0 opacity-75">Select a template to create a document</p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for template in templates %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="rounded-circle bg-danger bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-file-pdf fa-2x text-danger"></i>
+                        </div>
+                        <h5>{{ template.name }}</h5>
+                        <span class="badge bg-secondary mb-2">{{ template.get_template_type_display }}</span>
+                        <p class="text-muted small">{{ template.description|truncatewords:15|default:"No description" }}</p>
+                        <a href="{% url 'pdf_system:generate_pdf' template.slug %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Use Template
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-file-pdf fa-4x text-muted mb-3"></i>
+                        <h4>No Templates Available</h4>
+                        <p class="text-muted">PDF templates will be created by the administrator.</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

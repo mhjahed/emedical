@@ -1,0 +1,157 @@
+<!-- templates/doctors/dashboard.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Doctor Dashboard - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0">Welcome, {{ user.get_full_name }}!</h3>
+                <p class="mb-0 opacity-75">Manage your appointments and patients</p>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-white text-primary fs-6"><i class="fas fa-id-badge me-1"></i>{{ user.medi_id }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <a href="{% url 'doctors:dashboard' %}" class="list-group-item list-group-item-action active">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                            <a href="{% url 'doctors:appointments' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-calendar-check me-2"></i>My Appointments
+                            </a>
+                            <a href="{% url 'news:my_articles' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-newspaper me-2"></i>My Articles
+                            </a>
+                            <a href="{% url 'pdf_system:select_template' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-file-pdf me-2"></i>Generate PDF
+                            </a>
+                            <a href="{% url 'doctors:download_id_card' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-id-card me-2"></i>Download ID Card
+                            </a>
+                            <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-user me-2"></i>My Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Stats -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-0">{{ today_appointments.count|default:0 }}</h3>
+                                        <p class="mb-0">Today's Appointments</p>
+                                    </div>
+                                    <i class="fas fa-calendar-day fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm bg-warning text-dark">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-0">{{ pending_appointments|default:0 }}</h3>
+                                        <p class="mb-0">Pending Requests</p>
+                                    </div>
+                                    <i class="fas fa-clock fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-0">{{ profile.experience_years|default:0 }}</h3>
+                                        <p class="mb-0">Years Experience</p>
+                                    </div>
+                                    <i class="fas fa-award fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Today's Appointments -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Today's Appointments</h5>
+                        <a href="{% url 'doctors:appointments' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Time</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for apt in today_appointments %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ apt.patient.get_full_name }}</strong>
+                                            <br><small class="text-muted">{{ apt.appointment_id }}</small>
+                                        </td>
+                                        <td>{{ apt.time|time:"h:i A" }}</td>
+                                        <td>
+                                            {% if apt.is_video_consultation %}
+                                            <span class="badge bg-info"><i class="fas fa-video me-1"></i>Video</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">In-Person</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-{{ apt.status }}">{{ apt.get_status_display }}</span>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'appointments:update_appointment' apt.appointment_id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <i class="fas fa-calendar-check fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted mb-0">No appointments scheduled for today.</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

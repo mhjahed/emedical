@@ -1,0 +1,209 @@
+<!-- templates/admin_tools/dashboard.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h3>
+                <small class="opacity-75">System Overview & Management</small>
+            </div>
+            <div class="col-auto">
+                <a href="/admin/" class="btn btn-light btn-sm">
+                    <i class="fas fa-lock me-1"></i>Django Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-0">{{ stats.total_users }}</h3>
+                                <p class="mb-0">Total Users</p>
+                            </div>
+                            <i class="fas fa-users fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-0">{{ stats.total_doctors }}</h3>
+                                <p class="mb-0">Doctors</p>
+                            </div>
+                            <i class="fas fa-user-md fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-0">{{ stats.total_appointments }}</h3>
+                                <p class="mb-0">Appointments</p>
+                            </div>
+                            <i class="fas fa-calendar-check fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-warning text-dark">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-0">{{ stats.pending_appointments }}</h3>
+                                <p class="mb-0">Pending</p>
+                            </div>
+                            <i class="fas fa-clock fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <a href="{% url 'admin_tools:dashboard' %}" class="list-group-item list-group-item-action active">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                            <a href="{% url 'admin_tools:user_management' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-users me-2"></i>User Management
+                            </a>
+                            <a href="{% url 'admin_tools:create_staff_user' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-user-plus me-2"></i>Create Doctor/Staff
+                            </a>
+                            <a href="{% url 'pdf_system:template_list' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-file-pdf me-2"></i>PDF Templates
+                            </a>
+                            <a href="{% url 'admin_tools:reports' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-chart-bar me-2"></i>Reports
+                            </a>
+                            <a href="{% url 'admin_tools:audit_logs' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-history me-2"></i>Audit Logs
+                            </a>
+                            <a href="/admin/" class="list-group-item list-group-item-action">
+                                <i class="fas fa-cog me-2"></i>Django Admin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Quick Stats -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="text-muted">Today's Appointments</h6>
+                                <h3 class="text-primary">{{ stats.today_appointments }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="text-muted">New Users (30 days)</h6>
+                                <h3 class="text-success">{{ stats.new_users_30_days }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="text-muted">Published Articles</h6>
+                                <h3 class="text-info">{{ stats.published_articles }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pending Appointments -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-clock me-2 text-warning"></i>Pending Appointments</h5>
+                        <a href="{% url 'admin_tools:reports' %}?type=appointments" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Patient</th>
+                                        <th>Doctor</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for apt in pending_appointments %}
+                                    <tr>
+                                        <td><code>{{ apt.appointment_id }}</code></td>
+                                        <td>{{ apt.patient.get_full_name }}</td>
+                                        <td>Dr. {{ apt.doctor.user.get_full_name }}</td>
+                                        <td>{{ apt.date|date:"M d" }} {{ apt.time|time:"h:i A" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">No pending appointments</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>Recent Activity</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {% for activity in recent_activity %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>{{ activity.user.email }}</strong> - {{ activity.action }}
+                                        <p class="text-muted small mb-0">{{ activity.description }}</p>
+                                    </div>
+                                    <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="list-group-item text-center text-muted py-4">
+                                No recent activity
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

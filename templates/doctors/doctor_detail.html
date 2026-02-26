@@ -1,0 +1,148 @@
+<!-- templates/doctors/doctor_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ doctor.full_name }} - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <h1 class="fw-bold">Doctor Profile</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-white-50">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'doctors:doctors_list' %}" class="text-white-50">Doctors</a></li>
+                <li class="breadcrumb-item active text-white">{{ doctor.full_name }}</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        {% if doctor.user.profile_picture %}
+                        <img src="{{ doctor.user.profile_picture.url }}" alt="{{ doctor.full_name }}" class="rounded-circle mb-3" style="width: 180px; height: 180px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 180px; height: 180px;">
+                            <i class="fas fa-user-md fa-5x text-primary"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <h4 class="fw-bold mb-1">{{ doctor.full_name }}</h4>
+                        <p class="text-primary mb-2">{{ doctor.designation|default:"Specialist" }}</p>
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-hospital me-1"></i>{{ doctor.department.name|default:"General" }}
+                        </p>
+                        
+                        <div class="d-flex justify-content-center gap-2 mb-3">
+                            <span class="badge bg-primary"><i class="fas fa-id-badge me-1"></i>{{ doctor.medi_id }}</span>
+                            {% if doctor.user.blood_group %}
+                            <span class="badge bg-danger"><i class="fas fa-tint me-1"></i>{{ doctor.user.blood_group }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if doctor.is_accepting_appointments %}
+                        <a href="{% url 'appointments:book_appointment' %}?doctor={{ doctor.id }}" class="btn btn-primary w-100">
+                            <i class="fas fa-calendar-plus me-2"></i>Book Appointment
+                        </a>
+                        {% else %}
+                        <button class="btn btn-secondary w-100" disabled>Not Accepting Appointments</button>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Contact Info -->
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Contact Information</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if doctor.consultation_email %}
+                        <p class="mb-2"><i class="fas fa-envelope text-primary me-2"></i>{{ doctor.consultation_email }}</p>
+                        {% endif %}
+                        {% if doctor.consultation_phone %}
+                        <p class="mb-2"><i class="fas fa-phone text-primary me-2"></i>{{ doctor.consultation_phone }}</p>
+                        {% endif %}
+                        {% if doctor.consultation_fee %}
+                        <p class="mb-0"><i class="fas fa-dollar-sign text-primary me-2"></i>Consultation: ${{ doctor.consultation_fee }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="col-lg-8">
+                <!-- About -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>About</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if doctor.full_bio %}
+                        {{ doctor.full_bio|safe }}
+                        {% elif doctor.short_bio %}
+                        <p>{{ doctor.short_bio }}</p>
+                        {% else %}
+                        <p class="text-muted">No bio available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Qualifications -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Qualifications</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if doctor.qualifications %}
+                        <p>{{ doctor.qualifications }}</p>
+                        {% else %}
+                        <p class="text-muted">No qualifications listed.</p>
+                        {% endif %}
+                        
+                        {% for edu in education %}
+                        <div class="d-flex mb-2">
+                            <div class="bg-primary text-white rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ edu.degree }}</h6>
+                                <p class="text-muted small mb-0">{{ edu.institution }} - {{ edu.year }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Experience -->
+                {% if experiences %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-briefcase me-2"></i>Experience</h6>
+                    </div>
+                    <div class="card-body">
+                        {% for exp in experiences %}
+                        <div class="d-flex mb-3">
+                            <div class="bg-success text-white rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-hospital"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ exp.position }}</h6>
+                                <p class="text-muted small mb-0">{{ exp.hospital }}</p>
+                                <p class="text-muted small mb-0">{{ exp.start_year }} - {% if exp.is_current %}Present{% else %}{{ exp.end_year }}{% endif %}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

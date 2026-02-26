@@ -1,0 +1,141 @@
+<!-- templates/accounts/edit_profile.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <h1 class="fw-bold">Edit Profile</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-white-50">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}" class="text-white-50">Profile</a></li>
+                <li class="breadcrumb-item active text-white">Edit</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Update Your Information</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <h6 class="text-primary mb-3">Personal Information</h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">First Name</label>
+                                    {{ user_form.first_name }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    {{ user_form.last_name }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Phone Number</label>
+                                    {{ user_form.phone }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Date of Birth</label>
+                                    {{ user_form.date_of_birth }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Gender</label>
+                                    {{ user_form.gender }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Blood Group</label>
+                                    {{ user_form.blood_group }}
+                                </div>
+                            </div>
+                            
+                            <h6 class="text-primary mb-3 mt-4">Address</h6>
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Street Address</label>
+                                    {{ user_form.address }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">City</label>
+                                    {{ user_form.city }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">State</label>
+                                    {{ user_form.state }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Zip Code</label>
+                                    {{ user_form.zip_code }}
+                                </div>
+                            </div>
+                            
+                            <h6 class="text-primary mb-3 mt-4">Profile Photo</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Profile Picture</label>
+                                {{ user_form.profile_picture }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Bio</label>
+                                {{ user_form.bio }}
+                            </div>
+                            
+                            {% if patient_form %}
+                            <h6 class="text-primary mb-3 mt-4">Medical Information</h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Emergency Contact Name</label>
+                                    {{ patient_form.emergency_contact_name }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Emergency Contact Phone</label>
+                                    {{ patient_form.emergency_contact_phone }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Relation</label>
+                                    {{ patient_form.emergency_contact_relation }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Insurance Provider</label>
+                                    {{ patient_form.insurance_provider }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Insurance ID</label>
+                                    {{ patient_form.insurance_id }}
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Allergies</label>
+                                    {{ patient_form.allergies }}
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Current Medications</label>
+                                    {{ patient_form.current_medications }}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <hr>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                                <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

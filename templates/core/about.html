@@ -1,0 +1,98 @@
+<!-- templates/core/about.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - MediCare Hospital{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="fw-bold">About Us</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-white-50">Home</a></li>
+                        <li class="breadcrumb-item active text-white">About Us</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="https://img.freepik.com/premium-vector/hospital-building-concept-illustration_114360-8440.jpg?w=740" class="img-fluid rounded-4 shadow">
+            </div>
+            <div class="col-lg-6">
+                <h6 class="text-primary fw-bold">WHO WE ARE</h6>
+                <h2 class="fw-bold mb-4">A Legacy of Healing & Compassion</h2>
+                <p class="text-muted">MediCare Hospital was founded with a vision to provide accessible, high-quality healthcare to everyone. Over the past 25 years, we have grown from a small clinic to a full-fledged multi-specialty hospital.</p>
+                <p class="text-muted">Our team of dedicated healthcare professionals works tirelessly to ensure that every patient receives personalized care tailored to their unique needs.</p>
+                
+                <div class="row mt-4">
+                    <div class="col-sm-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Quality Healthcare</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Expert Medical Team</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Modern Facilities</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>24/7 Emergency</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission & Vision -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-5">
+                        <div class="bg-primary text-white rounded-circle mb-4 d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                            <i class="fas fa-bullseye fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">Our Mission</h4>
+                        <p class="text-muted mb-0">To provide exceptional healthcare services with compassion, integrity, and respect for all patients, while continuously advancing medical excellence through innovation and education.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-5">
+                        <div class="bg-success text-white rounded-circle mb-4 d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                            <i class="fas fa-eye fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">Our Vision</h4>
+                        <p class="text-muted mb-0">To be the leading healthcare provider in the region, recognized for clinical excellence, patient-centered care, and our commitment to improving the health and well-being of the communities we serve.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

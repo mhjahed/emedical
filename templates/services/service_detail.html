@@ -1,0 +1,122 @@
+<!-- templates/services/service_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ service.name }} - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <h1 class="fw-bold">{{ service.name }}</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-white-50">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'services:services_list' %}" class="text-white-50">Services</a></li>
+                <li class="breadcrumb-item active text-white">{{ service.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Main Image -->
+                {% if service.image %}
+                <img src="{{ service.image.url }}" alt="{{ service.name }}" class="img-fluid rounded-4 shadow mb-4 w-100" style="max-height: 400px; object-fit: cover;">
+                {% endif %}
+                
+                <!-- Description -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-3">About This Service</h4>
+                        <div class="content">
+                            {{ service.full_description|safe }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQs -->
+                {% if faqs %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="serviceFAQ">
+                            {% for faq in faqs %}
+                            <div class="accordion-item border-0 mb-2">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq{{ faq.id }}">
+                                        {{ faq.question }}
+                                    </button>
+                                </h2>
+                                <div id="faq{{ faq.id }}" class="accordion-collapse collapse" data-bs-parent="#serviceFAQ">
+                                    <div class="accordion-body">{{ faq.answer }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Pricing -->
+                {% if service.price %}
+                <div class="card border-0 shadow-sm mb-4 bg-primary text-white">
+                    <div class="card-body text-center p-4">
+                        <h6 class="opacity-75">{{ service.price_note|default:"Starting From" }}</h6>
+                        <h2 class="display-5 fw-bold">${{ service.price }}</h2>
+                        <a href="{% url 'appointments:book_appointment' %}" class="btn btn-light mt-3">
+                            <i class="fas fa-calendar-plus me-2"></i>Book Appointment
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Related Doctors -->
+                {% if related_doctors %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-user-md me-2"></i>Specialists</h6>
+                    </div>
+                    <div class="card-body">
+                        {% for doctor in related_doctors %}
+                        <div class="d-flex align-items-center mb-3">
+                            {% if doctor.user.profile_picture %}
+                            <img src="{{ doctor.user.profile_picture.url }}" alt="" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                            <div class="rounded-circle bg-primary bg-opacity-10 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="fas fa-user-md text-primary"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-0">{{ doctor.full_name }}</h6>
+                                <small class="text-muted">{{ doctor.designation }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Contact -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0"><i class="fas fa-phone me-2"></i>Need Help?</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Have questions about this service? Contact us!</p>
+                        <a href="{% url 'core:contact' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-envelope me-2"></i>Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

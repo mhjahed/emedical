@@ -1,0 +1,124 @@
+<!-- templates/doctors/doctors_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Our Doctors - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <h1 class="fw-bold">Our Doctors</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-white-50">Home</a></li>
+                <li class="breadcrumb-item active text-white">Doctors</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<!-- Search & Filter -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Search by name, ID, or specialty..." value="{{ search }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="department" class="form-select">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.slug }}" {% if department_filter == dept.slug %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Doctors List -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for doctor in doctors %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        {% if doctor.user.profile_picture %}
+                        <img src="{{ doctor.user.profile_picture.url }}" alt="{{ doctor.full_name }}" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                            <i class="fas fa-user-md fa-3x text-primary"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <h5 class="fw-bold mb-1">{{ doctor.full_name }}</h5>
+                        <p class="text-primary mb-2">{{ doctor.designation|default:"Specialist" }}</p>
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-hospital me-1"></i>{{ doctor.department.name|default:"General" }}
+                        </p>
+                        <span class="badge bg-light text-dark mb-3">
+                            <i class="fas fa-id-badge me-1"></i>{{ doctor.medi_id }}
+                        </span>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'doctors:doctor_detail' doctor.slug %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View Profile
+                            </a>
+                            {% if doctor.is_accepting_appointments %}
+                            <a href="{% url 'appointments:book_appointment' %}?doctor={{ doctor.id }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-calendar-plus me-1"></i>Book Appointment
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-user-md fa-4x text-muted mb-3"></i>
+                <h4>No Doctors Found</h4>
+                <p class="text-muted">Try adjusting your search or filter criteria.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if doctors.has_other_pages %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if doctors.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ doctors.previous_page_number }}&search={{ search }}&department={{ department_filter }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in doctors.paginator.page_range %}
+                <li class="page-item {% if doctors.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}&search={{ search }}&department={{ department_filter }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if doctors.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ doctors.next_page_number }}&search={{ search }}&department={{ department_filter }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

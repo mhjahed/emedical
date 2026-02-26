@@ -1,0 +1,515 @@
+<!-- templates/doctors/barcode_scanner.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Barcode Scanner - Access Control{% endblock %}
+
+{% block extra_css %}
+<style>
+    .scanner-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    #video-container {
+        position: relative;
+        width: 100%;
+        background: #000;
+        border-radius: 15px;
+        aspect-ratio: 4 / 3;   /* ✅ forces correct height */
+        overflow: hidden;
+    }
+    
+    #video {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    #video,
+    #video-container video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;   /* ✅ keeps camera centered */
+    }
+    #canvas {
+        display: none;
+    }
+    
+    .scanner-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 100px;
+        border: 3px solid #00ff00;
+        border-radius: 10px;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    }
+    
+    .scanner-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #00ff00, transparent);
+        animation: scan 2s linear infinite;
+    }
+    
+    @keyframes scan {
+        0% { top: 0; }
+        50% { top: calc(100% - 3px); }
+        100% { top: 0; }
+    }
+    
+    .access-result {
+        display: none;
+        padding: 20px;
+        border-radius: 15px;
+        margin-top: 20px;
+    }
+    
+    .access-granted {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+    
+    .access-denied {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+    
+    .location-btn {
+        margin: 5px;
+    }
+    
+    .location-btn.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-qrcode me-2"></i>Barcode Scanner</h3>
+                <small class="opacity-75">Staff Access Control System</small>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'doctors:manual_barcode' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-keyboard me-1"></i>Manual Entry
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="scanner-container">
+            <!-- Location Selection -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2 text-primary"></i>Select Access Location</h5>
+                </div>
+                <div class="card-body text-center">
+                    <button class="btn btn-outline-primary location-btn active" data-location="Reception">
+                        <i class="fas fa-door-open me-1"></i>Reception
+                    </button>
+                    <button class="btn btn-outline-danger location-btn" data-location="Operation Theater">
+                        <i class="fas fa-procedures me-1"></i>Operation Theater
+                    </button>
+                    <button class="btn btn-outline-info location-btn" data-location="Laboratory">
+                        <i class="fas fa-flask me-1"></i>Laboratory
+                    </button>
+                    <button class="btn btn-outline-success location-btn" data-location="ICU">
+                        <i class="fas fa-heartbeat me-1"></i>ICU
+                    </button>
+                    <button class="btn btn-outline-warning location-btn" data-location="Pharmacy">
+                        <i class="fas fa-pills me-1"></i>Pharmacy
+                    </button>
+                    <button class="btn btn-outline-secondary location-btn" data-location="Locker Room">
+                        <i class="fas fa-lock me-1"></i>Locker Room
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Scanner -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-camera me-2 text-primary"></i>Scan Barcode</h5>
+                </div>
+                <div class="card-body">
+                    <div id="video-container">
+                        <video id="video" autoplay playsinline></video>
+                        <div class="scanner-overlay">
+                            <div class="scanner-line"></div>
+                        </div>
+                    </div>
+                    <canvas id="canvas"></canvas>
+                    
+                    <div class="text-center mt-3">
+                        <button id="startBtn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-play me-2"></i>Start Scanner
+                        </button>
+                        <button id="stopBtn" class="btn btn-danger btn-lg" style="display: none;">
+                            <i class="fas fa-stop me-2"></i>Stop Scanner
+                        </button>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Position the barcode within the green box. Scanner will automatically detect and verify.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Manual Entry -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-keyboard me-2 text-primary"></i>Manual Entry</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" id="manualMediId" class="form-control form-control-lg" placeholder="Enter Medi ID (e.g., DOC-A1B2C3D4)">
+                        <button class="btn btn-primary" id="manualVerifyBtn">
+                            <i class="fas fa-check me-1"></i>Verify
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Result Display -->
+            <div id="accessResult" class="access-result">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div id="resultIcon" style="font-size: 4rem;"></div>
+                    </div>
+                    <div class="col">
+                        <h3 id="resultTitle" class="mb-2"></h3>
+                        <div id="resultDetails"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Access Log -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>Recent Access Log</h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="clearLog()">
+                        <i class="fas fa-trash me-1"></i>Clear
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div id="accessLog" class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                        <div class="list-group-item text-center text-muted py-4">
+                            <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                            <p class="mb-0">No scans yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Quagga.js for barcode scanning -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<script>
+
+
+
+    function logScanner(message, type = 'info' ) {
+    const prefix = '[Scanner]';
+
+    switch (type) {
+        case 'success':
+            console.log(`${prefix} ✅ ${message}`);
+            break;
+        case 'error':
+            console.error(`${prefix} ❌ ${message}`);
+            break;
+        case 'warn':
+            console.warn(`${prefix} ⚠️ ${message}`);
+            break;
+        default:
+            console.log(`${prefix} ℹ️ ${message}`);
+    }
+}
+let selectedLocation = 'Reception';
+let isScanning = false;
+let lastScannedCode = '';
+let scanTimeout = null;
+
+// Location selection
+document.querySelectorAll('.location-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.location-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        selectedLocation = this.dataset.location;
+    });
+});
+
+// Start Scanner
+document.getElementById('startBtn').addEventListener('click', function() {
+    startScanner();
+    logScanner('Camera running');
+
+});
+
+// Stop Scanner
+document.getElementById('stopBtn').addEventListener('click', function() {
+    stopScanner();
+});
+
+// Manual Verify
+document.getElementById('manualVerifyBtn').addEventListener('click', function() {
+    const mediId = document.getElementById('manualMediId').value.trim();
+    if (mediId) {
+        verifyBarcode(mediId);
+    }
+});
+
+// Enter key for manual input
+document.getElementById('manualMediId').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const mediId = this.value.trim();
+        if (mediId) {
+            verifyBarcode(mediId);
+        }
+    }
+});
+
+function startScanner() {
+    const video = document.getElementById('video');
+    
+    navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+        } 
+    })
+    .then(function(stream) {
+        video.srcObject = stream;
+        isScanning = true;
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('stopBtn').style.display = 'inline-block';
+        
+        // Start Quagga for barcode detection
+        Quagga.init({
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: document.querySelector('#video-container'),
+                constraints: {
+                    facingMode: "environment"
+                }
+            },
+            decoder: {
+                readers: ["code_128_reader"],
+                multiple: false
+            }
+        }, function(err) {
+            if (err) {
+                console.log(err);
+                // Fallback to manual only
+                showToast('Camera started. Use manual entry if barcode not detected.', 'info');
+                return;
+            }
+            Quagga.start();
+        });
+        
+        Quagga.onDetected(function(result) {
+            const code = result.codeResult.code;
+
+            if (code !== lastScannedCode) {
+                lastScannedCode = code;
+
+                logScanner(`Barcode detected: ${code}`);
+
+                playBeep();
+                logScanner('Barcode captured successfully');
+
+                verifyBarcode(code);
+
+                clearTimeout(scanTimeout);
+                scanTimeout = setTimeout(() => {
+                    lastScannedCode = '';
+                }, 3000);
+            }
+        });
+    })
+    .catch(function(err) {
+        console.error('Camera error:', err);
+        logScanner('Camera access denied or unavailable', 'error');
+        showToast('Could not access camera. Please use manual entry.', 'warning');
+    });
+}
+
+function stopScanner() {
+    const video = document.getElementById('video');
+    logScanner('Scanner stopped');
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+    }
+    
+    try {
+        Quagga.stop();
+    } catch(e) {}
+    
+    isScanning = false;
+    document.getElementById('startBtn').style.display = 'inline-block';
+    document.getElementById('stopBtn').style.display = 'none';
+}
+
+function verifyBarcode(mediId) {
+    fetch('{% url "doctors:verify_barcode" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            medi_id: mediId,
+            location: selectedLocation
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+    logScanner(`Access valid: ${data.data.name}`, 'success');
+} else {
+    logScanner(`Invalid access: ${data.message}`, 'warn');
+}
+
+        showResult(data);
+        addToLog(data, mediId);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        logScanner('Network or server error during verification', 'error');
+        showResult({
+            success: false,
+            message: 'Network error. Please try again.'
+        });
+    });
+}
+
+function showResult(data) {
+    const resultDiv = document.getElementById('accessResult');
+    const resultIcon = document.getElementById('resultIcon');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultDetails = document.getElementById('resultDetails');
+    
+    resultDiv.style.display = 'block';
+    
+    if (data.success) {
+        resultDiv.className = 'access-result access-granted';
+        resultIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        resultTitle.textContent = '✓ ACCESS GRANTED';
+        resultDetails.innerHTML = `
+            <p class="mb-1"><strong>${data.data.name}</strong></p>
+            <p class="mb-1">${data.data.profile_type} - ${data.data.designation}</p>
+            <p class="mb-1"><small>Department: ${data.data.department}</small></p>
+            <p class="mb-0"><small>Location: ${data.data.location} | Time: ${data.data.access_time}</small></p>
+        `;
+        
+        // Play success sound
+        playSuccess();
+    } else {
+        resultDiv.className = 'access-result access-denied';
+        resultIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
+        resultTitle.textContent = '✗ ACCESS DENIED';
+        resultDetails.innerHTML = `<p class="mb-0">${data.message}</p>`;
+        
+        // Play error sound
+        playError();
+    }
+    
+    // Hide after 5 seconds
+    setTimeout(() => {
+        resultDiv.style.display = 'none';
+    }, 5000);
+}
+
+function addToLog(data, mediId) {
+    const logDiv = document.getElementById('accessLog');
+    const now = new Date().toLocaleTimeString();
+    
+    // Clear "no scans" message
+    if (logDiv.querySelector('.text-muted')) {
+        logDiv.innerHTML = '';
+    }
+    
+    const logEntry = document.createElement('div');
+    logEntry.className = `list-group-item ${data.success ? 'list-group-item-success' : 'list-group-item-danger'}`;
+    
+    if (data.success) {
+        logEntry.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>${data.data.name}</strong>
+                    <span class="badge bg-primary ms-2">${data.data.profile_type}</span>
+                </div>
+                <small class="text-muted">${now}</small>
+            </div>
+            <small class="text-muted">
+                ${mediId} → ${data.data.location}
+            </small>
+        `;
+    } else {
+        logEntry.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-times-circle text-danger me-2"></i>
+                    <strong>Access Denied</strong>
+                </div>
+                <small class="text-muted">${now}</small>
+            </div>
+            <small class="text-muted">${mediId} - ${data.message}</small>
+        `;
+    }
+    
+    logDiv.insertBefore(logEntry, logDiv.firstChild);
+}
+
+function clearLog() {
+    document.getElementById('accessLog').innerHTML = `
+        <div class="list-group-item text-center text-muted py-4">
+            <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+            <p class="mb-0">No scans yet</p>
+        </div>
+    `;
+}
+
+function playBeep() {
+    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleVsQKIPT8NyoeF0cPYPI9tOrdGsqOHq/8uCjdHE7MHG59uWrgXhKLGuz9+2mhYFVJGKr9++ukIlaHlGl+PK2mZdoGUKc+/bAnZ9yFDST/PnJpKh8Di+L/PvRq7B8CymE/v3ZsbV/CiZ+//7gtrl/Byh7//7muLt9Bil7//frtrt7BS58//fxt7t7BS9+//T2uLl5BzGA//L4ubl3CDaE//D7urh0CT2J/+79vLZxC0SM/+r/vbJtDEuQ/+j/v7BqDlGU/+X/wa1nD1aX/+P/w6pjEFya/+D/xaZgEWGe/93/x6RdEmWh/9r/yaFaE2mk/9j/yp5YFG6o/9X/zJtVFXKr/9P/zphSFneu/9D/0JVPGHux/87/0pNNGX6z/8v/1JBJG4G2/8n/1o5HHoS4/8b/2IxEH4e7/8P/2YpBIIq9/8H/24c/Io2//77/3YU8JJC//7z/3oQ6JpLB/7r/34I4J5PD/7n/4IE3KJbE/7f/4IA1KpjG/7X/4X80LJrI/7P/4n0zLZzJ/7L/43syL53K/7D/5HkxMJ/M/6//5XgvMqHN/63/5ncuNKLP/6z/53ctNaTP/6r/6HYsN6bR/6n/6XUrOKjS/6j/6nQqOqrT/6f/63MpO6vU/6X/7HIoPK3V/6T/7XEnPq/W/6P/7nAmQLHX/6L/728lQbLY/6D/8G4kQ7TZ/5//8W0jRLba/57/8mwhRrjb/53/82sgSLnc/5z/9GofSbvd/5v/9WkeSr3e/5n/9mgeS7/g/5j/92cdTcDh/5f/+GYcT8Li/5b/+WUbUMTj/5X/+mQaUsbk/5T/+2MZVMfl/5P//GIYVcnn/5L//WEXWMro/5H//mAWWcvp/5D//18VW83q/4///14UXM/r/47//l0TX9Hs/43//lwSYNLt/4z//1sRYtTu/4v//loQZNXv/4r//lkPZdfw/4n//lgOZ9jx/4j//1cNadrz/4f//lYMat31/4b//lULbN72/4X//1QKbt/3/4T//lMJcOH4/4P//lIIceL5/4L//1EHc+T6/4H//lAGdOb7/4D//08Fduf8/3///04Eeej9/37//k0De+r+/33//kwCfOz//3z//ksB');
+    audio.play().catch(() => {});
+}
+
+function playSuccess() {
+    // Success beep
+}
+
+function playError() {
+    // Error beep
+}
+
+function showToast(message, type) {
+    alert(message);
+}
+</script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+{% endblock %}

@@ -1,0 +1,206 @@
+<!-- templates/doctors/appointments.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Appointments - Doctor Dashboard{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-calendar-check me-2"></i>My Appointments</h3>
+                <small class="opacity-75">Manage your patient appointments</small>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'doctors:dashboard' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter -->
+<section class="py-3 bg-light">
+    <div class="container">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Appointment ID</th>
+                                <th>Patient</th>
+                                <th>Date & Time</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in appointments %}
+                            <tr>
+                                <td><code>{{ appointment.appointment_id }}</code></td>
+                                <td>
+                                    <strong>{{ appointment.patient.get_full_name }}</strong>
+                                    <br><small class="text-muted">{{ appointment.patient.email }}</small>
+                                </td>
+                                <td>
+                                    <i class="fas fa-calendar text-primary me-1"></i>{{ appointment.date|date:"M d, Y" }}
+                                    <br>
+                                    <i class="fas fa-clock text-muted me-1"></i>{{ appointment.time|time:"h:i A" }}
+                                </td>
+                                <td>
+                                    {% if appointment.is_video_consultation %}
+                                    <span class="badge bg-info"><i class="fas fa-video me-1"></i>Video</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary"><i class="fas fa-user me-1"></i>In-Person</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if appointment.status == 'pending' %}bg-warning text-dark
+                                        {% elif appointment.status == 'confirmed' %}bg-success
+                                        {% elif appointment.status == 'completed' %}bg-info
+                                        {% elif appointment.status == 'cancelled' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ appointment.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'appointments:update_appointment' appointment.appointment_id %}" class="btn btn-outline-primary" title="View/Edit">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if appointment.status == 'pending' %}
+                                        <button type="button" class="btn btn-outline-success" onclick="acceptAppointment('{{ appointment.appointment_id }}')" title="Accept">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" onclick="rejectAppointment('{{ appointment.appointment_id }}')" title="Reject">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        {% endif %}
+                                        {% if appointment.is_video_consultation and appointment.status == 'confirmed' and not appointment.meet_link %}
+                                        <a href="{% url 'appointments:add_meet_link' appointment.appointment_id %}" class="btn btn-outline-info" title="Add Meet Link">
+                                            <i class="fas fa-video"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No Appointments Found</h5>
+                                    <p class="text-muted mb-0">Your appointments will appear here.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        {% if appointments.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if appointments.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ appointments.previous_page_number }}&status={{ status_filter }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in appointments.paginator.page_range %}
+                {% if appointments.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > appointments.number|add:'-3' and num < appointments.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}&status={{ status_filter }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if appointments.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ appointments.next_page_number }}&status={{ status_filter }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function acceptAppointment(appointmentId) {
+    if (confirm('Accept this appointment?')) {
+        fetch(`/appointments/accept/${appointmentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Error occurred');
+            }
+        });
+    }
+}
+
+function rejectAppointment(appointmentId) {
+    if (confirm('Reject this appointment?')) {
+        fetch(`/appointments/reject/${appointmentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Error occurred');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

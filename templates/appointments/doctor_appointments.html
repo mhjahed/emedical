@@ -1,0 +1,259 @@
+<!-- templates/appointments/doctor_appointments.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Appointments - Doctor Dashboard{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Manage Appointments</h3>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                    <i class="fas fa-clock me-1"></i>{{ pending_count }} Pending
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filters -->
+<section class="py-3 bg-light">
+    <div class="container">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="date" class="form-control" value="{{ date_filter }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Today's Quick View -->
+{% if today_appointments %}
+<section class="py-4">
+    <div class="container">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-calendar-day me-2 text-success"></i>Today's Appointments ({{ today_appointments.count }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for apt in today_appointments %}
+                            <tr>
+                                <td><strong>{{ apt.time|time:"h:i A" }}</strong></td>
+                                <td>
+                                    {{ apt.patient.get_full_name }}
+                                    <br><small class="text-muted">{{ apt.patient.phone|default:"No phone" }}</small>
+                                </td>
+                                <td>
+                                    {% if apt.is_video_consultation %}
+                                    <span class="badge bg-info"><i class="fas fa-video me-1"></i>Video</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">In-Person</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if apt.status == 'pending' %}bg-warning text-dark
+                                        {% elif apt.status == 'confirmed' %}bg-success
+                                        {% elif apt.status == 'completed' %}bg-info
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ apt.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'appointments:update_appointment' apt.appointment_id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- All Appointments -->
+<section class="py-4">
+    <div class="container">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-list me-2 text-primary"></i>All Appointments</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Date & Time</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for apt in appointments %}
+                            <tr>
+                                <td><code>{{ apt.appointment_id }}</code></td>
+                                <td>
+                                    <strong>{{ apt.patient.get_full_name }}</strong>
+                                    <br><small class="text-muted">{{ apt.patient.email }}</small>
+                                </td>
+                                <td>
+                                    {{ apt.date|date:"M d, Y" }}
+                                    <br><small class="text-muted">{{ apt.time|time:"h:i A" }}</small>
+                                </td>
+                                <td>
+                                    {% if apt.is_video_consultation %}
+                                    <span class="badge bg-info"><i class="fas fa-video me-1"></i>Video</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">In-Person</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if apt.status == 'pending' %}bg-warning text-dark
+                                        {% elif apt.status == 'confirmed' %}bg-success
+                                        {% elif apt.status == 'completed' %}bg-info
+                                        {% elif apt.status == 'cancelled' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ apt.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'appointments:update_appointment' apt.appointment_id %}" class="btn btn-outline-primary" title="View/Edit">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if apt.status == 'pending' %}
+                                        <button class="btn btn-outline-success" onclick="acceptAppointment('{{ apt.appointment_id }}')" title="Accept">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="rejectAppointment('{{ apt.appointment_id }}')" title="Reject">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">No appointments found.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        {% if appointments.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if appointments.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ appointments.previous_page_number }}&status={{ status_filter }}&date={{ date_filter }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in appointments.paginator.page_range %}
+                <li class="page-item {% if appointments.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}&status={{ status_filter }}&date={{ date_filter }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if appointments.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ appointments.next_page_number }}&status={{ status_filter }}&date={{ date_filter }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function acceptAppointment(appointmentId) {
+    if (confirm('Accept this appointment?')) {
+        fetch(`/appointments/accept/${appointmentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Error occurred');
+            }
+        });
+    }
+}
+
+function rejectAppointment(appointmentId) {
+    if (confirm('Reject/Cancel this appointment?')) {
+        fetch(`/appointments/reject/${appointmentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Error occurred');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

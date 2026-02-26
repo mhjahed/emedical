@@ -1,0 +1,250 @@
+<!-- templates/appointments/update_appointment.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Appointment - Doctor Dashboard{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-edit me-2"></i>Update Appointment</h3>
+                <p class="mb-0 opacity-75">{{ appointment.appointment_id }}</p>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'appointments:doctor_appointments' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-1"></i>Back
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Patient Info -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-user me-2 text-primary"></i>Patient Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted small">Name</label>
+                                <p class="fw-bold mb-0">{{ appointment.patient.get_full_name }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted small">Email</label>
+                                <p class="mb-0">{{ appointment.patient.email }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted small">Phone</label>
+                                <p class="mb-0">{{ appointment.patient.phone|default:"Not provided" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="text-muted small">Blood Group</label>
+                                <p class="mb-0">{{ appointment.patient.blood_group|default:"Not provided" }}</p>
+                            </div>
+                            <div class="col-12">
+                                <label class="text-muted small">Reason for Visit</label>
+                                <p class="mb-0">{{ appointment.reason }}</p>
+                            </div>
+                            {% if appointment.symptoms %}
+                            <div class="col-12 mt-3">
+                                <label class="text-muted small">Symptoms</label>
+                                <p class="mb-0">{{ appointment.symptoms }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Update Form -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-edit me-2 text-primary"></i>Update Appointment</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Status</label>
+                                    {{ form.status }}
+                                </div>
+                                
+                                {% if appointment.is_video_consultation %}
+                                <div class="col-12 mb-3">
+                                    <label class="form-label"><i class="fas fa-video me-1 text-info"></i>Google Meet Link</label>
+                                    {{ form.meet_link }}
+                                    <small class="text-muted">Paste the Google Meet link for video consultation</small>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Diagnosis</label>
+                                    {{ form.diagnosis }}
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Prescription</label>
+                                    {{ form.prescription }}
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Doctor's Notes</label>
+                                    {{ form.doctor_notes }}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Follow-up Date</label>
+                                    {{ form.follow_up_date }}
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Save Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Add Meet Link Shortcut -->
+                {% if appointment.is_video_consultation and not appointment.meet_link %}
+                <div class="card border-0 shadow-sm border-start border-info border-4">
+                    <div class="card-body">
+                        <h5><i class="fas fa-video me-2 text-info"></i>Create Google Meet Link</h5>
+                        <p class="text-muted">This is a video consultation. Please create a Google Meet link for the patient.</p>
+                        <ol class="text-muted">
+                            <li>Go to <a href="https://meet.google.com" target="_blank">Google Meet</a></li>
+                            <li>Click "New meeting" → "Create a meeting for later"</li>
+                            <li>Copy the meeting link and paste it above</li>
+                        </ol>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Appointment Summary -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Summary</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="text-muted small">Date & Time</label>
+                            <p class="fw-bold mb-0">
+                                <i class="fas fa-calendar me-1 text-primary"></i>{{ appointment.date|date:"F d, Y" }}
+                                <br>
+                                <i class="fas fa-clock me-1 text-primary"></i>{{ appointment.time|time:"h:i A" }}
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Type</label>
+                            <p class="mb-0">
+                                {{ appointment.get_appointment_type_display }}
+                                {% if appointment.is_video_consultation %}
+                                <span class="badge bg-info"><i class="fas fa-video"></i></span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Fee</label>
+                            <p class="fw-bold mb-0">${{ appointment.fee }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-bolt me-2 text-warning"></i>Quick Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if appointment.status == 'pending' %}
+                        <button class="btn btn-success w-100 mb-2" onclick="acceptAppointment('{{ appointment.appointment_id }}')">
+                            <i class="fas fa-check me-1"></i>Accept
+                        </button>
+                        <button class="btn btn-danger w-100 mb-2" onclick="rejectAppointment('{{ appointment.appointment_id }}')">
+                            <i class="fas fa-times me-1"></i>Reject
+                        </button>
+                        {% endif %}
+                        
+                        {% if appointment.status == 'confirmed' %}
+                        <button class="btn btn-info w-100 mb-2" onclick="completeAppointment('{{ appointment.appointment_id }}')">
+                            <i class="fas fa-check-double me-1"></i>Mark as Completed
+                        </button>
+                        {% endif %}
+                        
+                        <a href="{% url 'pdf_system:select_template' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-file-pdf me-1"></i>Generate PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function acceptAppointment(appointmentId) {
+    fetch(`/appointments/accept/${appointmentId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+function rejectAppointment(appointmentId) {
+    if (confirm('Reject this appointment?')) {
+        fetch(`/appointments/reject/${appointmentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function completeAppointment(appointmentId) {
+    fetch(`/appointments/complete/${appointmentId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}

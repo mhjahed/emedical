@@ -1,0 +1,96 @@
+<!-- templates/pdf_system/generate_pdf.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Generate PDF - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <h3 class="mb-0"><i class="fas fa-file-pdf me-2"></i>Generate PDF</h3>
+        <small class="opacity-75">Template: {{ template.name }}</small>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-edit me-2 text-primary"></i>Fill Document Details</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <!-- Patient Selection -->
+                            <div class="mb-4">
+                                <h6 class="text-primary"><i class="fas fa-user me-1"></i>Patient Information</h6>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Select Patient *</label>
+                                    {{ patient_form.patient }}
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <!-- Dynamic Fields -->
+                            <div class="mb-4">
+                                <h6 class="text-primary"><i class="fas fa-list me-1"></i>Document Fields</h6>
+                                {% for field in dynamic_form %}
+                                <div class="mb-3">
+                                    <label class="form-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                {% empty %}
+                                <p class="text-muted">No additional fields required for this template.</p>
+                                {% endfor %}
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-file-pdf me-2"></i>Generate PDF
+                                </button>
+                                <a href="{% url 'pdf_system:select_template' %}" class="btn btn-outline-secondary">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Template Info -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Template Info</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="text-muted small">Template Name</label>
+                            <p class="fw-bold mb-0">{{ template.name }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Type</label>
+                            <p class="mb-0">{{ template.get_template_type_display }}</p>
+                        </div>
+                        {% if template.description %}
+                        <div class="mb-0">
+                            <label class="text-muted small">Description</label>
+                            <p class="mb-0">{{ template.description }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,172 @@
+<!-- templates/admin_tools/user_management.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Management - Admin{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-users me-2"></i>User Management</h3>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'admin_tools:create_staff_user' %}" class="btn btn-light">
+                    <i class="fas fa-user-plus me-1"></i>Add Doctor/Staff
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter -->
+<section class="py-3 bg-light">
+    <div class="container">
+        <form method="get" class="row g-2">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control" placeholder="Search users..." value="{{ search }}">
+            </div>
+            <div class="col-md-2">
+                <select name="role" class="form-select">
+                    <option value="">All Roles</option>
+                    <option value="patient" {% if role_filter == 'patient' %}selected{% endif %}>Patients</option>
+                    <option value="doctor" {% if role_filter == 'doctor' %}selected{% endif %}>Doctors</option>
+                    <option value="staff" {% if role_filter == 'staff' %}selected{% endif %}>Staff</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Medi ID</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if u.profile_picture %}
+                                        <img src="{{ u.profile_picture.url }}" alt="" class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="rounded-circle bg-primary text-white me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                            <i class="fas fa-user small"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ u.get_full_name|default:u.email }}</strong>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ u.email }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if u.role == 'superadmin' %}bg-danger
+                                        {% elif u.role == 'doctor' %}bg-primary
+                                        {% elif u.role == 'staff' %}bg-info
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ u.get_role_display }}
+                                    </span>
+                                </td>
+                                <td><code>{{ u.medi_id|default:"-" }}</code></td>
+                                <td>
+                                    {% if u.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ u.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if not u.is_superadmin %}
+                                    <button class="btn btn-sm btn-outline-{{ u.is_active|yesno:'danger,success' }}" onclick="toggleUserStatus({{ u.id }})">
+                                        <i class="fas fa-{{ u.is_active|yesno:'ban,check' }}"></i>
+                                    </button>
+                                    {% endif %}
+                                    <a href="/admin/accounts/user/{{ u.id }}/change/" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">No users found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        {% if users.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if users.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ users.previous_page_number }}&search={{ search }}&role={{ role_filter }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in users.paginator.page_range %}
+                <li class="page-item {% if users.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}&search={{ search }}&role={{ role_filter }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if users.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ users.next_page_number }}&search={{ search }}&role={{ role_filter }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleUserStatus(userId) {
+    fetch(`/admin-tools/users/toggle/${userId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Error occurred');
+        }
+    });
+}
+</script>
+{% endblock %}

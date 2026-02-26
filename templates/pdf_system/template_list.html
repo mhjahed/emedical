@@ -1,0 +1,74 @@
+<!-- templates/pdf_system/template_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PDF Templates - Admin{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-file-pdf me-2"></i>PDF Templates</h3>
+                <small class="opacity-75">Manage document templates</small>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'pdf_system:create_template' %}" class="btn btn-light">
+                    <i class="fas fa-plus me-1"></i>Create Template
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for template in templates %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="rounded-circle bg-danger bg-opacity-10 p-3">
+                                <i class="fas fa-file-pdf fa-lg text-danger"></i>
+                            </div>
+                            <span class="badge bg-{{ template.is_active|yesno:'success,secondary' }}">
+                                {{ template.is_active|yesno:'Active,Inactive' }}
+                            </span>
+                        </div>
+                        <h5 class="card-title">{{ template.name }}</h5>
+                        <span class="badge bg-light text-dark mb-2">{{ template.get_template_type_display }}</span>
+                        <p class="card-text text-muted small">{{ template.description|truncatewords:15|default:"No description" }}</p>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'pdf_system:preview_template' template.slug %}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                <i class="fas fa-eye me-1"></i>Preview
+                            </a>
+                            <a href="{% url 'pdf_system:edit_template' template.slug %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                            <a href="{% url 'pdf_system:delete_template' template.slug %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this template?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-file-pdf fa-4x text-muted mb-3"></i>
+                        <h4>No Templates Yet</h4>
+                        <p class="text-muted mb-4">Create your first PDF template to get started.</p>
+                        <a href="{% url 'pdf_system:create_template' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Template
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,84 @@
+<!-- templates/appointments/add_meet_link.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Google Meet Link - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <h3 class="mb-0"><i class="fas fa-video me-2"></i>Add Google Meet Link</h3>
+        <small class="opacity-75">Appointment: {{ appointment.appointment_id }}</small>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <!-- Appointment Info -->
+                        <div class="alert alert-light mb-4">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Patient</small>
+                                    <p class="mb-0 fw-bold">{{ appointment.patient.get_full_name }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Date & Time</small>
+                                    <p class="mb-0 fw-bold">{{ appointment.date|date:"M d, Y" }} at {{ appointment.time|time:"h:i A" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Instructions -->
+                        <div class="alert alert-info mb-4">
+                            <h6><i class="fas fa-info-circle me-1"></i>How to create a Google Meet link:</h6>
+                            <ol class="mb-0 ps-3">
+                                <li>Go to <a href="https://meet.google.com" target="_blank" class="alert-link">meet.google.com</a></li>
+                                <li>Click <strong>"New meeting"</strong></li>
+                                <li>Select <strong>"Create a meeting for later"</strong></li>
+                                <li>Copy the meeting link and paste it below</li>
+                            </ol>
+                        </div>
+                        
+                        <!-- Form -->
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold"><i class="fas fa-link me-1"></i>Google Meet Link *</label>
+                                {{ form.meet_link }}
+                                <small class="text-muted">Example: https://meet.google.com/abc-defg-hij</small>
+                                {% if form.meet_link.errors %}
+                                <div class="text-danger small">{{ form.meet_link.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>Save Meet Link
+                                </button>
+                                <a href="{% url 'appointments:update_appointment' appointment.appointment_id %}" class="btn btn-outline-secondary">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Quick Create Button -->
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-body text-center">
+                        <p class="mb-3">Or quickly create a new meeting:</p>
+                        <a href="https://meet.google.com/new" target="_blank" class="btn btn-outline-info">
+                            <i class="fas fa-external-link-alt me-1"></i>Open Google Meet
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

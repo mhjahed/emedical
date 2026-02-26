@@ -1,0 +1,152 @@
+<!-- templates/doctors/manual_barcode.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manual Barcode Entry - Access Control{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0"><i class="fas fa-keyboard me-2"></i>Manual Barcode Entry</h3>
+                <small class="opacity-75">Enter Medi ID manually for access verification</small>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'doctors:barcode_scanner' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-camera me-1"></i>Use Camera Scanner
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <form method="post" id="verifyForm">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Medi ID *</label>
+                                <input type="text" name="medi_id" class="form-control form-control-lg text-center" 
+                                       placeholder="DOC-XXXXXXXX" id="mediIdInput" required autofocus
+                                       style="font-family: monospace; font-size: 1.5rem; letter-spacing: 2px;">
+                                <small class="text-muted">Enter the Medi ID from the ID card barcode</small>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Access Location</label>
+                                <select name="location" class="form-select form-select-lg">
+                                    <option value="Reception">Reception</option>
+                                    <option value="Operation Theater">Operation Theater (OT)</option>
+                                    <option value="Laboratory">Laboratory</option>
+                                    <option value="ICU">ICU</option>
+                                    <option value="Pharmacy">Pharmacy</option>
+                                    <option value="Locker Room">Locker Room</option>
+                                    <option value="Emergency">Emergency Room</option>
+                                    <option value="Radiology">Radiology</option>
+                                    <option value="Records Room">Medical Records</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-check-circle me-2"></i>Verify Access
+                            </button>
+                        </form>
+                        
+                        <!-- Result Display -->
+                        <div id="result" class="mt-4" style="display: none;"></div>
+                    </div>
+                </div>
+                
+                <!-- Quick Test IDs -->
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-2 text-info"></i>Quick Reference</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-2">Medi ID Format:</p>
+                        <ul class="text-muted small mb-0">
+                            <li><code>DOC-XXXXXXXX</code> - Doctor IDs</li>
+                            <li><code>STF-XXXXXXXX</code> - Staff IDs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('verifyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const mediId = document.getElementById('mediIdInput').value.trim().toUpperCase();
+    const location = document.querySelector('select[name="location"]').value;
+    const resultDiv = document.getElementById('result');
+    
+    fetch('{% url "doctors:verify_barcode" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            medi_id: mediId,
+            location: location
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        resultDiv.style.display = 'block';
+        
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <h4><i class="fas fa-check-circle me-2"></i>ACCESS GRANTED</h4>
+                    <hr>
+                    <p class="mb-1"><strong>Name:</strong> ${data.data.name}</p>
+                    <p class="mb-1"><strong>Type:</strong> ${data.data.profile_type}</p>
+                    <p class="mb-1"><strong>Designation:</strong> ${data.data.designation}</p>
+                    <p class="mb-1"><strong>Department:</strong> ${data.data.department}</p>
+                    <p class="mb-0"><strong>Location:</strong> ${data.data.location}</p>
+                    <p class="mb-0"><strong>Time:</strong> ${data.data.access_time}</p>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h4><i class="fas fa-times-circle me-2"></i>ACCESS DENIED</h4>
+                    <hr>
+                    <p class="mb-0">${data.message}</p>
+                </div>
+            `;
+        }
+        
+        // Clear input
+        document.getElementById('mediIdInput').value = '';
+        document.getElementById('mediIdInput').focus();
+    })
+    .catch(error => {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Network error. Please try again.
+            </div>
+        `;
+    });
+});
+
+// Auto-uppercase input
+document.getElementById('mediIdInput').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+</script>
+{% endblock %}

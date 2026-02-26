@@ -1,0 +1,321 @@
+<!-- templates/news/article_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }} - MediCare Hospital{% endblock %}
+
+{% block extra_css %}
+<style>
+    #article-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        transition: opacity 0.5s ease;
+    }
+    #article-loader.fade-out {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .article-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+    .article-content p {
+        margin-bottom: 1.5rem;
+    }
+    .article-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        margin: 1rem 0;
+    }
+    .gallery-carousel {
+        scrollbar-width: thin;
+        scrollbar-color: #667eea #f1f1f1;
+    }
+    .gallery-carousel::-webkit-scrollbar {
+        height: 8px;
+    }
+    .gallery-carousel::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .gallery-carousel::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Loader -->
+<div id="article-loader">
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 text-primary fw-bold">Medi News Loading...</p>
+    </div>
+</div>
+
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                {% if article.category %}
+                <span class="badge bg-white text-primary mb-2">{{ article.category.name }}</span>
+                {% endif %}
+                <h1 class="fw-bold">{{ article.title }}</h1>
+                {% if article.subtitle %}
+                <p class="lead opacity-75">{{ article.subtitle }}</p>
+                {% endif %}
+                <div class="d-flex align-items-center mt-3 flex-wrap">
+                    <div class="d-flex align-items-center me-4 mb-2">
+                        <i class="fas fa-user-circle fa-lg me-2"></i>
+                        <span>{{ article.author_name }}</span>
+                    </div>
+                    <div class="d-flex align-items-center me-4 mb-2">
+                        <i class="fas fa-calendar me-2"></i>
+                        <span>{{ article.published_at|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="d-flex align-items-center me-4 mb-2">
+                        <i class="fas fa-clock me-2"></i>
+                        <span>{{ article.reading_time }} min read</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-eye me-2"></i>
+                        <span>{{ article.views }} views</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Primary Image -->
+                {% if article.primary_image %}
+                <figure class="mb-4">
+                    <img src="{{ article.primary_image.url }}" alt="{{ article.title }}" class="img-fluid rounded-4 shadow w-100" style="max-height: 500px; object-fit: cover;">
+                    {% if article.primary_image_caption %}
+                    <figcaption class="text-muted text-center mt-2 fst-italic">{{ article.primary_image_caption }}</figcaption>
+                    {% endif %}
+                </figure>
+                {% endif %}
+                
+                <!-- Content -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="article-content">
+                            {{ article.content|safe }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gallery Carousel -->
+                {% if gallery_images %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-images me-2 text-primary"></i>Image Gallery</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="gallery-carousel d-flex overflow-auto pb-3" style="gap: 15px; scroll-snap-type: x mandatory;">
+                            {% for img in gallery_images %}
+                            <div class="gallery-item" style="flex: 0 0 280px; scroll-snap-align: start;">
+                                <img src="{{ img.image.url }}" alt="{{ img.caption|default:article.title }}" class="img-fluid rounded shadow-sm" style="width: 280px; height: 200px; object-fit: cover; cursor: pointer;" onclick="openImageModal('{{ img.image.url }}')">
+                                {% if img.caption %}
+                                <p class="text-muted small text-center mt-2">{{ img.caption }}</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <p class="text-muted small text-center mt-2"><i class="fas fa-hand-point-right me-1"></i>Scroll to see more images</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Tags -->
+                {% if article.tags.all %}
+                <div class="mb-4">
+                    <i class="fas fa-tags me-2 text-primary"></i>
+                    {% for tag in article.tags.all %}
+                    <a href="{% url 'news:tag_articles' tag.slug %}" class="badge bg-light text-dark text-decoration-none me-1 mb-1">{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Share Buttons -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="mb-3"><i class="fas fa-share-alt me-2"></i>Share This Article</h6>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="fab fa-facebook-f me-1"></i>Facebook
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ article.title }}" target="_blank" class="btn btn-info btn-sm text-white">
+                                <i class="fab fa-twitter me-1"></i>Twitter
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ article.title }}" target="_blank" class="btn btn-secondary btn-sm">
+                                <i class="fab fa-linkedin-in me-1"></i>LinkedIn
+                            </a>
+                            <a href="https://wa.me/?text={{ article.title }} {{ request.build_absolute_uri }}" target="_blank" class="btn btn-success btn-sm">
+                                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Comments -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-comments me-2 text-primary"></i>Comments ({{ comments.count }})</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'news:add_comment' article.slug %}" class="mb-4">
+                            {% csrf_token %}
+                            {{ comment_form.content }}
+                            <button type="submit" class="btn btn-primary mt-2">
+                                <i class="fas fa-paper-plane me-1"></i>Post Comment
+                            </button>
+                        </form>
+                        {% else %}
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}">Login</a> to post a comment.
+                        </div>
+                        {% endif %}
+                        
+                        {% for comment in comments %}
+                        <div class="d-flex mb-4 pb-3 border-bottom">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h6 class="mb-1 fw-bold">{{ comment.user.get_full_name|default:comment.user.email }}</h6>
+                                    <small class="text-muted">{{ comment.created_at|date:"M d, Y" }}</small>
+                                </div>
+                                <p class="mb-0 text-muted">{{ comment.content }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No comments yet. Be the first to comment!</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Author -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body text-center p-4">
+                        {% if article.author.profile_picture %}
+                        <img src="{{ article.author.profile_picture.url }}" alt="{{ article.author_name }}" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary text-white mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="fas fa-user-md fa-2x"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="fw-bold">{{ article.author_name }}</h5>
+                        <p class="text-muted small">Medical Expert at MediCare</p>
+                    </div>
+                </div>
+                
+                <!-- Categories -->
+                {% if categories %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-folder me-2 text-primary"></i>Categories</h6>
+                    </div>
+                    <div class="card-body">
+                        {% for cat in categories %}
+                        <a href="{% url 'news:category_articles' cat.slug %}" class="d-flex justify-content-between align-items-center text-decoration-none text-dark py-2 border-bottom">
+                            <span>{{ cat.name }}</span>
+                            <span class="badge bg-primary rounded-pill">{{ cat.articles.count }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Related Articles -->
+                {% if related_articles %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0"><i class="fas fa-newspaper me-2 text-primary"></i>Related Articles</h6>
+                    </div>
+                    <div class="card-body">
+                        {% for related in related_articles %}
+                        <div class="d-flex mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            {% if related.primary_image %}
+                            <img src="{{ related.primary_image.url }}" alt="" class="rounded me-3 flex-shrink-0" style="width: 80px; height: 80px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light rounded me-3 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="fas fa-newspaper text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <a href="{% url 'news:article_detail' related.slug %}" class="text-dark text-decoration-none">
+                                    <h6 class="mb-1 line-clamp-2">{{ related.title|truncatewords:8 }}</h6>
+                                </a>
+                                <small class="text-muted">{{ related.published_at|date:"M d, Y" }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0 text-center">
+                <img src="" id="modalImage" class="img-fluid rounded" alt="">
+                <button type="button" class="btn btn-light btn-sm position-absolute top-0 end-0 m-2" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var articleLoader = document.getElementById('article-loader');
+    if (articleLoader) {
+        articleLoader.classList.add('fade-out');
+        setTimeout(function() {
+            articleLoader.style.display = 'none';
+        }, 500);
+    }
+});
+
+function openImageModal(imageUrl) {
+    document.getElementById('modalImage').src = imageUrl;
+    var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

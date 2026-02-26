@@ -1,0 +1,142 @@
+<!-- templates/accounts/profile.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - MediCare Hospital{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <h1 class="fw-bold">My Profile</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-white-50">Home</a></li>
+                <li class="breadcrumb-item active text-white">Profile</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary text-white mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                            <i class="fas fa-user fa-3x"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="fw-bold mb-1">{{ user.get_full_name }}</h5>
+                        <p class="text-muted mb-2">{{ user.email }}</p>
+                        <span class="badge bg-{{ user.role|default:'primary' }}">
+                            {% if user.is_patient %}Patient{% elif user.is_doctor %}Doctor{% elif user.is_staff_member %}Staff{% else %}{{ user.role|title }}{% endif %}
+                        </span>
+                    </div>
+                    <hr class="my-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-user me-2"></i>Profile
+                        </a>
+                        <a href="{% url 'accounts:edit_profile' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                        <a href="{% url 'appointments:my_appointments' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-check me-2"></i>My Appointments
+                        </a>
+                        <a href="{% url 'pdf_system:my_documents' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-pdf me-2"></i>My Documents
+                        </a>
+                        <a href="{% url 'accounts:change_password' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-key me-2"></i>Change Password
+                        </a>
+                        <a href="{% url 'accounts:activity_log' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-history me-2"></i>Activity Log
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Profile Information</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="text-muted small">Full Name</label>
+                                <p class="fw-bold mb-0">{{ user.get_full_name|default:"Not provided" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="text-muted small">Email Address</label>
+                                <p class="fw-bold mb-0">{{ user.email }}</p>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="text-muted small">Phone Number</label>
+                                <p class="fw-bold mb-0">{{ user.phone|default:"Not provided" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="text-muted small">Date of Birth</label>
+                                <p class="fw-bold mb-0">{{ user.date_of_birth|date:"F d, Y"|default:"Not provided" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="text-muted small">Gender</label>
+                                <p class="fw-bold mb-0">{{ user.get_gender_display|default:"Not provided" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="text-muted small">Blood Group</label>
+                                <p class="fw-bold mb-0">{{ user.blood_group|default:"Not provided" }}</p>
+                            </div>
+                            <div class="col-12 mb-4">
+                                <label class="text-muted small">Address</label>
+                                <p class="fw-bold mb-0">{{ user.address|default:"Not provided" }}</p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <a href="{% url 'accounts:edit_profile' %}" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                </div>
+                
+                {% if patient_profile %}
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Medical Information</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="text-muted small">Emergency Contact</label>
+                                <p class="fw-bold mb-0">{{ patient_profile.emergency_contact_name|default:"Not provided" }}</p>
+                                <p class="small text-muted mb-0">{{ patient_profile.emergency_contact_phone|default:"" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="text-muted small">Insurance Provider</label>
+                                <p class="fw-bold mb-0">{{ patient_profile.insurance_provider|default:"Not provided" }}</p>
+                            </div>
+                            <div class="col-12 mb-4">
+                                <label class="text-muted small">Allergies</label>
+                                <p class="fw-bold mb-0">{{ patient_profile.allergies|default:"None specified" }}</p>
+                            </div>
+                            <div class="col-12">
+                                <label class="text-muted small">Current Medications</label>
+                                <p class="fw-bold mb-0">{{ patient_profile.current_medications|default:"None specified" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
