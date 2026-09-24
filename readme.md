@@ -162,6 +162,8 @@ medical_platform/
 
 `why google meet? zero api complexity · zero server load · every device works · zero cost`
 `built end-to-end by` **[MH JAHED](https://github.com/mhjahed)** · `mhjahed@proton.me`
+`contact me <b>I'm available now!</b>`
+
 
 </div>
 
